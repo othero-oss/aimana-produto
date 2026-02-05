@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   ArrowLeft,
   Clock,
@@ -11,7 +11,6 @@ import {
   ChevronUp,
   Award,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -169,7 +168,7 @@ const mockProgress: Record<string, UserModuleProgress> = {
 };
 
 export function CourseDetail() {
-  const { courseId } = useParams();
+  // const { courseId } = useParams(); // Will be used when connecting to real API
   const [selectedModule, setSelectedModule] = useState<CourseModule>(mockModules[2]);
   const [showAITutor, setShowAITutor] = useState(false);
   const [showSummary, setShowSummary] = useState(false);

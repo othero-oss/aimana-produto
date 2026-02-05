@@ -32,7 +32,7 @@ const suggestedQuestions = [
 ];
 
 // Mock response generator (used as fallback when API is not available)
-function generateMockResponse(question: string, courseName: string): string {
+function generateMockResponse(_question: string, courseName: string): string {
   const responses = [
     `Ótima pergunta! No contexto de "${courseName}", isso significa que você pode aplicar esse conceito diretamente no seu trabalho.\n\nPor exemplo, se você está trabalhando com análise de dados, pode usar essa técnica para automatizar relatórios e identificar padrões importantes.`,
     `Vou explicar de forma mais simples:\n\nImagine que a IA é como um assistente super inteligente que aprende com exemplos. Quanto mais exemplos você der, melhor ele entende o que você precisa.\n\nNo seu caso, isso significa que você pode treinar a IA para entender o contexto específico do seu trabalho.`,

@@ -2,7 +2,6 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import * as academyService from '@/services/academy'
-import type { Course, CourseModule, UserCourseProgress, Certificate } from '@/types/academy'
 
 // ============================================
 // QUERY KEYS
@@ -110,7 +109,7 @@ export function useStartCourse() {
 
   return useMutation({
     mutationFn: (courseId: string) => academyService.startCourse(courseId),
-    onSuccess: (data, courseId) => {
+    onSuccess: (_data, courseId) => {
       // Invalidate progress queries
       queryClient.invalidateQueries({ queryKey: academyKeys.progressByCourse(courseId) })
       queryClient.invalidateQueries({ queryKey: academyKeys.progressAll() })
