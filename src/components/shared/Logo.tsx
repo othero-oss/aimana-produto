@@ -13,10 +13,10 @@ export function Logo({
   showText = true,
   className,
 }: LogoProps) {
-  const sizeClasses = {
-    sm: 'h-6',
-    md: 'h-8',
-    lg: 'h-10',
+  const iconSizeClasses = {
+    sm: 'w-8 h-6',
+    md: 'w-10 h-8',
+    lg: 'w-12 h-10',
   };
 
   const textSizeClasses = {
@@ -26,39 +26,55 @@ export function Logo({
   };
 
   const textColorClasses = {
-    default: 'text-text',
+    default: 'text-brand-navy',
     light: 'text-white',
     dark: 'text-brand-navy',
   };
 
+  const iconColor = variant === 'light' ? '#FFFFFF' : '#5CEABC';
+
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      {/* Logo Icon - Abstract AI symbol */}
-      <div
-        className={cn(
-          'relative flex items-center justify-center rounded-lg bg-gradient-celebration',
-          sizeClasses[size],
-          size === 'sm' ? 'w-6' : size === 'md' ? 'w-8' : 'w-10'
-        )}
+      {/* AIMANA Logo Icon - Chevrons with center dot */}
+      <svg
+        viewBox="0 0 60 40"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn(iconSizeClasses[size])}
       >
-        <svg
-          viewBox="0 0 24 24"
+        {/* Left chevron */}
+        <path
+          d="M18 8L6 20L18 32"
+          stroke={iconColor}
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           fill="none"
-          className="w-2/3 h-2/3"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-            fill="white"
-            fillOpacity="0.9"
-          />
-        </svg>
-      </div>
+        />
+        {/* Right chevron */}
+        <path
+          d="M42 8L54 20L42 32"
+          stroke={iconColor}
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+        {/* Center dot/square */}
+        <rect
+          x="26"
+          y="16"
+          width="8"
+          height="8"
+          fill={iconColor}
+          rx="1"
+        />
+      </svg>
 
       {showText && (
         <span
           className={cn(
-            'font-bold tracking-tight',
+            'font-bold tracking-widest',
             textSizeClasses[size],
             textColorClasses[variant]
           )}

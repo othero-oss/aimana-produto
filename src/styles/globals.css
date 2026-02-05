@@ -2,18 +2,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @theme {
-  /* Brand Colors */
-  --color-brand-coral: #F06A6A;
-  --color-brand-teal: #00D4AA;
-  --color-brand-navy: #0A1628;
+  /* Brand Colors - AIMANA Palette */
+  --color-brand-primary: #5CEABC;      /* Verde/Teal - Cor principal */
+  --color-brand-secondary: #4A8DB7;    /* Azul médio */
+  --color-brand-navy: #0B1A2E;         /* Azul escuro/Navy */
+  --color-brand-teal: #5CEABC;         /* Verde/Teal */
+  --color-brand-coral: #5CEABC;        /* Usando teal como accent */
 
   /* Phase Colors */
-  --color-phase-plan: #4573D2;
-  --color-phase-execute: #F8A325;
-  --color-phase-manage: #9B5DE5;
+  --color-phase-plan: #4A8DB7;         /* Azul médio - PLANEJAR */
+  --color-phase-execute: #5CEABC;      /* Verde/Teal - EXECUTAR */
+  --color-phase-manage: #0B1A2E;       /* Navy - GERIR */
 
   /* Status Colors */
-  --color-status-success: #5DA283;
+  --color-status-success: #5CEABC;
   --color-status-warning: #F8A325;
   --color-status-error: #E8384F;
   --color-status-pending: #9CA3AF;
@@ -23,7 +25,7 @@
   --color-surface-light: #F6F8FA;
   --color-surface-hover: #F1F3F5;
   --color-surface-border: #E5E7EB;
-  --color-surface-dark: #0A1628;
+  --color-surface-dark: #0B1A2E;
 
   /* Text Colors */
   --color-text-DEFAULT: #1F2937;
@@ -108,7 +110,7 @@
     color: var(--color-text-DEFAULT);
   }
 
-  /* Cards (Asana-style) */
+  /* Cards */
   .card-base {
     background-color: white;
     border-radius: 0.75rem;
@@ -148,55 +150,55 @@
   .sidebar-item-active {
     color: white;
     background-color: rgba(255, 255, 255, 0.1);
-    border-left: 3px solid var(--color-brand-coral);
+    border-left: 3px solid var(--color-brand-teal);
   }
 
   /* Phase badges */
   .badge-plan {
-    background-color: rgba(69, 115, 210, 0.1);
+    background-color: rgba(74, 141, 183, 0.1);
     color: var(--color-phase-plan);
-    border: 1px solid rgba(69, 115, 210, 0.2);
+    border: 1px solid rgba(74, 141, 183, 0.2);
     padding: 0.25rem 0.625rem;
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 500;
   }
   .badge-execute {
-    background-color: rgba(248, 163, 37, 0.1);
-    color: var(--color-phase-execute);
-    border: 1px solid rgba(248, 163, 37, 0.2);
+    background-color: rgba(92, 234, 188, 0.1);
+    color: #0B1A2E;
+    border: 1px solid rgba(92, 234, 188, 0.3);
     padding: 0.25rem 0.625rem;
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 500;
   }
   .badge-manage {
-    background-color: rgba(155, 93, 229, 0.1);
+    background-color: rgba(11, 26, 46, 0.1);
     color: var(--color-phase-manage);
-    border: 1px solid rgba(155, 93, 229, 0.2);
+    border: 1px solid rgba(11, 26, 46, 0.2);
     padding: 0.25rem 0.625rem;
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 500;
   }
 
-  /* Progress bar gradient */
+  /* Progress bar gradient - AIMANA colors */
   .progress-gradient {
-    background: linear-gradient(90deg, #F06A6A 0%, #F8A325 50%, #00D4AA 100%);
+    background: linear-gradient(90deg, #0B1A2E 0%, #4A8DB7 50%, #5CEABC 100%);
   }
 
-  /* Gradient backgrounds */
+  /* Gradient backgrounds - AIMANA */
   .bg-gradient-celebration {
-    background: linear-gradient(135deg, #F06A6A 0%, #F8A325 50%, #5DA283 100%);
+    background: linear-gradient(135deg, #0B1A2E 0%, #4A8DB7 50%, #5CEABC 100%);
   }
   .bg-gradient-header {
-    background: linear-gradient(135deg, #0A1628 0%, #1E3A5F 100%);
+    background: linear-gradient(135deg, #0B1A2E 0%, #4A8DB7 100%);
   }
-  .bg-gradient-coral {
-    background: linear-gradient(135deg, #F06A6A 0%, #E85D5D 100%);
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #5CEABC 0%, #4A8DB7 100%);
   }
 
-  /* Glow effect for CTAs (Asana-inspired) */
+  /* Glow effect for CTAs */
   .btn-glow {
     position: relative;
     overflow: hidden;
@@ -207,7 +209,7 @@
     inset: 0;
     opacity: 0;
     transition: opacity 0.3s;
-    background: radial-gradient(circle at center, rgba(240, 106, 106, 0.3), transparent 70%);
+    background: radial-gradient(circle at center, rgba(92, 234, 188, 0.3), transparent 70%);
   }
   .btn-glow:hover::after {
     opacity: 1;
@@ -216,8 +218,8 @@
   /* Input focus styles */
   .input-focus:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(240, 106, 106, 0.2);
-    border-color: var(--color-brand-coral);
+    box-shadow: 0 0 0 2px rgba(92, 234, 188, 0.2);
+    border-color: var(--color-brand-teal);
   }
 
   /* Scrollbar styles */
