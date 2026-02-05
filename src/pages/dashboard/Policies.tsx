@@ -9,12 +9,28 @@ import {
   Sparkles,
   Eye,
   Copy,
+  Loader2,
+  AlertCircle,
+  Bot,
+  Key,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PageHeader } from '@/components/shared';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { PageHeader, OpenAIKeyModal } from '@/components/shared';
+import { usePolicyGenerator } from '@/hooks/useOpenAI';
+import ReactMarkdown from 'react-markdown';
 
 // Mock data
 const mockPolicies = [
@@ -68,6 +84,16 @@ const policyTemplates = [
   { id: '5', name: 'Framework de Governança de IA', category: 'Governança', popular: false },
 ];
 
+const policyTypes = [
+  { value: 'uso_aceitavel', label: 'Política de Uso Aceitável de IA' },
+  { value: 'privacidade', label: 'Política de Privacidade para IA' },
+  { value: 'governanca', label: 'Framework de Governança de IA' },
+  { value: 'etica', label: 'Código de Ética em IA' },
+  { value: 'ia_generativa', label: 'Política de IA Generativa' },
+  { value: 'dados', label: 'Política de Dados para IA' },
+  { value: 'seguranca', label: 'Política de Segurança em IA' },
+];
+
 const getStatusBadge = (status: string) => {
   switch (status) {
     case 'approved':
@@ -83,6 +109,63 @@ const getStatusBadge = (status: string) => {
 
 export function Policies() {
   const [activeTab, setActiveTab] = useState('all');
+  const [showGeneratorModal, setShowGeneratorModal] = useState(false);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [generatedPolicy, setGeneratedPolicy] = useState('');
+  const [copiedPolicy, setCopiedPolicy] = useState(false);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    type: '',
+    companyName: '',
+    sector: '',
+    size: '',
+    requirements: '',
+  });
+
+  const policyGenerator = usePolicyGenerator();
+
+  const handleGeneratePolicy = async () => {
+    if (!formData.type || !formData.companyName) return;
+
+    if (!policyGenerator.isConfigured) {
+      setShowApiKeyModal(true);
+      return;
+    }
+
+    setGeneratedPolicy('');
+
+    try {
+      const result = await policyGenerator.generatePolicy({
+        type: policyTypes.find(p => p.value === formData.type)?.label || formData.type,
+        companyName: formData.companyName,
+        sector: formData.sector || 'Não especificado',
+        size: formData.size || 'Não especificado',
+        specificRequirements: formData.requirements,
+      });
+      setGeneratedPolicy(result);
+    } catch {
+      // Error handled by hook
+    }
+  };
+
+  const handleCopyPolicy = async () => {
+    await navigator.clipboard.writeText(generatedPolicy);
+    setCopiedPolicy(true);
+    setTimeout(() => setCopiedPolicy(false), 2000);
+  };
+
+  const resetGenerator = () => {
+    setFormData({
+      type: '',
+      companyName: '',
+      sector: '',
+      size: '',
+      requirements: '',
+    });
+    setGeneratedPolicy('');
+    setShowGeneratorModal(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -90,7 +173,7 @@ export function Policies() {
         title="Políticas"
         description="Gerencie as políticas de IA da sua empresa"
         actions={
-          <Button>
+          <Button onClick={() => setShowGeneratorModal(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Nova política
           </Button>
@@ -101,7 +184,10 @@ export function Policies() {
         <TabsList>
           <TabsTrigger value="all">Todas</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
-          <TabsTrigger value="generator">Gerador com IA</TabsTrigger>
+          <TabsTrigger value="generator" className="flex items-center gap-1.5">
+            <Sparkles className="h-4 w-4" />
+            Gerador com IA
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-6">
@@ -233,7 +319,10 @@ export function Policies() {
               <p className="text-white/80 mb-6 max-w-md mx-auto">
                 Use inteligência artificial para criar políticas personalizadas para sua empresa em minutos.
               </p>
-              <Button className="bg-white text-brand-navy hover:bg-white/90">
+              <Button
+                className="bg-white text-brand-navy hover:bg-white/90"
+                onClick={() => setShowGeneratorModal(true)}
+              >
                 <Sparkles className="h-4 w-4 mr-2" />
                 Gerar política com IA
               </Button>
@@ -270,8 +359,209 @@ export function Policies() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Policy Types */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Tipos de políticas disponíveis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {policyTypes.map((type) => (
+                  <button
+                    key={type.value}
+                    onClick={() => {
+                      setFormData({ ...formData, type: type.value });
+                      setShowGeneratorModal(true);
+                    }}
+                    className="p-4 text-left rounded-lg border border-surface-border hover:border-brand-teal hover:bg-brand-teal/5 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-5 w-5 text-brand-teal" />
+                      <span className="font-medium text-sm">{type.label}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Generator Modal */}
+      <Dialog open={showGeneratorModal} onOpenChange={resetGenerator}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Bot className="h-5 w-5 text-brand-teal" />
+              Gerador de Políticas com IA
+            </DialogTitle>
+            <DialogDescription>
+              Preencha as informações abaixo para gerar uma política personalizada.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {!generatedPolicy ? (
+              <>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="policyType">Tipo de Política *</Label>
+                    <select
+                      id="policyType"
+                      value={formData.type}
+                      onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                      className="w-full h-10 px-3 rounded-lg border border-surface-border bg-white focus:outline-none focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal"
+                    >
+                      <option value="">Selecione o tipo...</option>
+                      {policyTypes.map((type) => (
+                        <option key={type.value} value={type.value}>
+                          {type.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="companyName">Nome da Empresa *</Label>
+                    <Input
+                      id="companyName"
+                      placeholder="Ex: ACME Corporation"
+                      value={formData.companyName}
+                      onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sector">Setor/Indústria</Label>
+                    <Input
+                      id="sector"
+                      placeholder="Ex: Tecnologia, Varejo, Financeiro..."
+                      value={formData.sector}
+                      onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="size">Tamanho da Empresa</Label>
+                    <Input
+                      id="size"
+                      placeholder="Ex: 50-200 colaboradores"
+                      value={formData.size}
+                      onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="requirements">Requisitos Específicos (opcional)</Label>
+                  <textarea
+                    id="requirements"
+                    placeholder="Descreva requisitos específicos, regulamentações que devem ser consideradas, ou contexto adicional..."
+                    className="w-full min-h-[100px] px-3 py-2 border border-surface-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal"
+                    value={formData.requirements}
+                    onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+                  />
+                </div>
+
+                {!policyGenerator.isConfigured && (
+                  <div className="flex items-center gap-3 p-4 bg-status-warning/10 rounded-lg">
+                    <Key className="h-5 w-5 text-status-warning" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">API Key não configurada</p>
+                      <p className="text-xs text-text-muted">Configure sua chave OpenAI para usar o gerador.</p>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => setShowApiKeyModal(true)}>
+                      Configurar
+                    </Button>
+                  </div>
+                )}
+
+                {policyGenerator.error && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-status-error/10 text-status-error text-sm">
+                    <AlertCircle className="h-4 w-4" />
+                    {policyGenerator.error}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold">Política Gerada</h3>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={handleCopyPolicy}>
+                      {copiedPolicy ? (
+                        <>
+                          <CheckCircle className="h-4 w-4 mr-1 text-status-success" />
+                          Copiado!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4 mr-1" />
+                          Copiar
+                        </>
+                      )}
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setGeneratedPolicy('')}>
+                      <Edit className="h-4 w-4 mr-1" />
+                      Gerar novamente
+                    </Button>
+                  </div>
+                </div>
+
+                <Card className="bg-surface-light">
+                  <CardContent className="p-4">
+                    <div className="prose prose-sm max-w-none max-h-[400px] overflow-y-auto">
+                      <ReactMarkdown>{generatedPolicy}</ReactMarkdown>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={resetGenerator}>
+              {generatedPolicy ? 'Fechar' : 'Cancelar'}
+            </Button>
+            {!generatedPolicy && (
+              <Button
+                onClick={handleGeneratePolicy}
+                disabled={!formData.type || !formData.companyName || policyGenerator.isLoading}
+              >
+                {policyGenerator.isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Gerando política...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Gerar Política
+                  </>
+                )}
+              </Button>
+            )}
+            {generatedPolicy && (
+              <Button onClick={() => {
+                // In a real app, this would save to database
+                alert('Política salva como rascunho!');
+                resetGenerator();
+              }}>
+                <FileText className="h-4 w-4 mr-2" />
+                Salvar como Rascunho
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* API Key Modal */}
+      <OpenAIKeyModal
+        isOpen={showApiKeyModal}
+        onClose={() => setShowApiKeyModal(false)}
+        onSave={(key) => {
+          policyGenerator.configureApiKey(key);
+          setShowApiKeyModal(false);
+        }}
+      />
     </div>
   );
 }

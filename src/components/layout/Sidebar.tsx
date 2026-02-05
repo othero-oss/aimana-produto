@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
+  Rocket,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/shared/Logo';
@@ -38,6 +39,7 @@ const navItems: NavItem[] = [
   { path: '/dashboard/diagnostics', label: 'Diagnósticos', icon: Search },
   { path: '/dashboard/academy', label: 'Academy', icon: BookOpen },
   { path: '/dashboard/lifow', label: 'LIFOW', icon: Bot },
+  { path: '/dashboard/ai-hub', label: 'AI Hub', icon: Rocket },
   { path: '/dashboard/community', label: 'Comunidade', icon: Users },
   { path: '/dashboard/policies', label: 'Políticas', icon: FileText },
   { path: '/dashboard/integrations', label: 'Integrações', icon: Plug },

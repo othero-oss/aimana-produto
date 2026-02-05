@@ -18,7 +18,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { PageHeader } from '@/components/shared';
+import { PageHeader, AIChat, OpenAIKeyModal } from '@/components/shared';
+import { useLIFOWAssistant } from '@/hooks/useOpenAI';
+import { systemPrompts } from '@/services/openai';
 
 // Mock data
 const mockChannels = [
@@ -94,6 +96,8 @@ function StatCard({ title, value, subtitle, icon: Icon, change }: {
 
 export function LIFOW() {
   const [activeTab, setActiveTab] = useState('status');
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const lifowAssistant = useLIFOWAssistant();
 
   return (
     <div className="space-y-6">
@@ -105,6 +109,10 @@ export function LIFOW() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="status">Status</TabsTrigger>
+          <TabsTrigger value="demo" className="flex items-center gap-1.5">
+            <Bot className="h-4 w-4" />
+            Testar LIFOW
+          </TabsTrigger>
           <TabsTrigger value="config">Configuração</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="history">Histórico</TabsTrigger>
@@ -273,6 +281,89 @@ export function LIFOW() {
           </Card>
         </TabsContent>
 
+        {/* LIFOW Demo/Test Tab */}
+        <TabsContent value="demo">
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <AIChat
+                title="LIFOW - Oráculo de IA"
+                subtitle="Tire suas dúvidas sobre IA no fluxo de trabalho"
+                placeholder="Faça uma pergunta sobre IA aplicada ao trabalho..."
+                systemPrompt={systemPrompts.lifowAssistant}
+                isConfigured={lifowAssistant.isConfigured}
+                isLoading={lifowAssistant.isLoading}
+                error={lifowAssistant.error}
+                onSendMessage={(message, history) => lifowAssistant.askAssistant(message, undefined, history)}
+                onConfigureKey={() => setShowApiKeyModal(true)}
+                suggestedQuestions={[
+                  'Como usar IA para escrever e-mails?',
+                  'Como automatizar tarefas repetitivas?',
+                  'Qual ferramenta de IA devo usar para análise de dados?',
+                  'Como criar um prompt efetivo?',
+                ]}
+                className="h-[600px]"
+              />
+            </div>
+            <div className="space-y-4">
+              <Card className="bg-gradient-to-br from-brand-navy to-brand-secondary text-white">
+                <CardContent className="p-5">
+                  <Zap className="h-8 w-8 mb-3" />
+                  <h3 className="font-semibold mb-2">Teste o LIFOW</h3>
+                  <p className="text-sm text-white/80">
+                    Esta é uma demonstração do oráculo de IA. Em produção, ele responderá automaticamente nos canais conectados da sua empresa.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold mb-3">Como funciona o LIFOW?</h3>
+                  <ul className="space-y-3 text-sm">
+                    <li className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-brand-teal/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-xs font-bold text-brand-teal">1</span>
+                      </span>
+                      <span>Colaborador faz uma pergunta no Slack/Teams</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-brand-teal/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-xs font-bold text-brand-teal">2</span>
+                      </span>
+                      <span>LIFOW responde com base no conhecimento da plataforma</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-brand-teal/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-xs font-bold text-brand-teal">3</span>
+                      </span>
+                      <span>Sugere cursos e conteúdos relevantes da Academy</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-brand-teal/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-xs font-bold text-brand-teal">4</span>
+                      </span>
+                      <span>Gera insights sobre dúvidas frequentes da equipe</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold mb-3">Perguntas populares</h3>
+                  <div className="space-y-2">
+                    {['Prompts', 'Automação', 'ChatGPT', 'Produtividade', 'Análise de dados'].map((topic) => (
+                      <div key={topic} className="flex items-center justify-between text-sm">
+                        <span className="text-text-secondary">{topic}</span>
+                        <Badge variant="secondary" className="text-xs">Trending</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
         <TabsContent value="config" className="space-y-6">
           <Card>
             <CardHeader>
@@ -341,6 +432,16 @@ export function LIFOW() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* API Key Modal */}
+      <OpenAIKeyModal
+        isOpen={showApiKeyModal}
+        onClose={() => setShowApiKeyModal(false)}
+        onSave={(key) => {
+          lifowAssistant.configureApiKey(key);
+          setShowApiKeyModal(false);
+        }}
+      />
     </div>
   );
 }

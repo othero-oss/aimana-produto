@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { Award, BookOpen, Clock, TrendingUp } from 'lucide-react';
+import { Award, BookOpen, Clock, TrendingUp, Bot } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { StatsCard } from '@/components/shared/StatsCard';
+import { AIChat, OpenAIKeyModal } from '@/components/shared';
 import { CourseGrid } from '@/components/academy/CourseGrid';
 import { LevelTrack } from '@/components/academy/LevelTrack';
+import { useAITutor } from '@/hooks/useOpenAI';
+import { systemPrompts } from '@/services/openai';
 import type { Course, UserCourseProgress } from '@/types/academy';
 
 // Mock data - will come from API
@@ -226,6 +229,8 @@ const mockStats = {
 
 export function Academy() {
   const [activeTab, setActiveTab] = useState('trilhas');
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const aiTutor = useAITutor();
 
   // Filter courses by progress status
   const inProgressCourses = mockCourses.filter(
@@ -268,6 +273,10 @@ export function Academy() {
           <TabsTrigger value="cursos">Todos os Cursos</TabsTrigger>
           <TabsTrigger value="meus">Meus Cursos</TabsTrigger>
           <TabsTrigger value="certificados">Certificados</TabsTrigger>
+          <TabsTrigger value="ai-tutor" className="flex items-center gap-1.5">
+            <Bot className="h-4 w-4" />
+            AI Tutor
+          </TabsTrigger>
         </TabsList>
 
         {/* Trilhas Tab */}
@@ -370,7 +379,90 @@ export function Academy() {
             )}
           </div>
         </TabsContent>
+
+        {/* AI Tutor Tab */}
+        <TabsContent value="ai-tutor">
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <AIChat
+                title="AI Tutor"
+                subtitle="Tire suas dúvidas sobre IA e tecnologia"
+                placeholder="Faça uma pergunta sobre IA..."
+                systemPrompt={systemPrompts.aiTutor}
+                isConfigured={aiTutor.isConfigured}
+                isLoading={aiTutor.isLoading}
+                error={aiTutor.error}
+                onSendMessage={aiTutor.askTutor}
+                onConfigureKey={() => setShowApiKeyModal(true)}
+                suggestedQuestions={[
+                  'O que é Machine Learning?',
+                  'Como criar bons prompts?',
+                  'O que é IA Generativa?',
+                  'Como aplicar IA no meu trabalho?',
+                ]}
+                className="h-[600px]"
+              />
+            </div>
+            <div className="space-y-4">
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Bot className="h-5 w-5 text-brand-teal" />
+                    Sobre o AI Tutor
+                  </h3>
+                  <p className="text-sm text-text-muted mb-4">
+                    O AI Tutor é seu assistente pessoal de aprendizado. Ele pode:
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <span className="text-brand-teal">•</span>
+                      <span>Explicar conceitos de IA de forma simples</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-brand-teal">•</span>
+                      <span>Dar exemplos práticos do mundo corporativo</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-brand-teal">•</span>
+                      <span>Sugerir cursos relevantes para seu aprendizado</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-brand-teal">•</span>
+                      <span>Tirar dúvidas sobre os conteúdos dos cursos</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold mb-3">Tópicos populares</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {['ChatGPT', 'Prompts', 'Automação', 'Machine Learning', 'IA Generativa', 'LLMs', 'APIs', 'Python'].map((topic) => (
+                      <span
+                        key={topic}
+                        className="px-3 py-1 text-xs rounded-full bg-surface-light text-text-secondary"
+                      >
+                        {topic}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
       </Tabs>
+
+      {/* API Key Modal */}
+      <OpenAIKeyModal
+        isOpen={showApiKeyModal}
+        onClose={() => setShowApiKeyModal(false)}
+        onSave={(key) => {
+          aiTutor.configureApiKey(key);
+          setShowApiKeyModal(false);
+        }}
+      />
     </div>
   );
 }

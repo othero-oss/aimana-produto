@@ -22,6 +22,7 @@ import { Integrations } from '@/pages/dashboard/Integrations';
 import { Policies } from '@/pages/dashboard/Policies';
 import { Control } from '@/pages/dashboard/Control';
 import { Settings } from '@/pages/dashboard/Settings';
+import { AIHub } from '@/pages/dashboard/AIHub';
 
 // Error pages
 import { NotFound } from '@/pages/NotFound';
@@ -69,6 +70,7 @@ const router = createBrowserRouter([
       { path: 'policies', element: <Policies /> },
       { path: 'control', element: <Control /> },
       { path: 'settings', element: <Settings /> },
+      { path: 'ai-hub', element: <AIHub /> },
     ],
   },
 
